@@ -7,11 +7,9 @@ mod ray;
 
 use rand::rngs::ThreadRng;
 use rand::Rng;
-use std::rc::Rc;
 
 use camera::Camera;
-use material::{Dielectric, Lambertian, Metal};
-use objects::{Hittable, HittableList, Sphere};
+use objects::{Hittable, HittableList};
 use ray::Ray;
 use vec3::Vec3;
 

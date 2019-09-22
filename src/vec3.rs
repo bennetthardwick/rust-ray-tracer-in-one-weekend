@@ -215,7 +215,7 @@ macro_rules! vec3_impl {
             type Output = Vec3;
 
             fn div(self, rhs: $a) -> Vec3 {
-                Vec3::new(rhs.x / self, rhs.y / self, rhs.z / self)
+                Vec3::new(self / rhs.x , self / rhs.y, self / rhs.z)
             }
         }
 
@@ -258,12 +258,174 @@ mod test {
     }
 
     #[test]
+    fn test_add() {
+        assert_eq!(
+            vec3!(2.) + vec3!(2.),
+            vec3!(4.)
+        );
+    }
+
+    #[test]
+    fn test_getters() {
+        let a = vec3!(1., 2., 3.);
+
+        assert_eq!(
+            a.x(),
+            1.
+        );
+
+        assert_eq!(
+            a.y(),
+            2.
+        );
+
+        assert_eq!(
+            a.z(),
+            3.
+        );
+
+        assert_eq!(
+            a.r(),
+            1.
+        );
+
+        assert_eq!(
+            a.g(),
+            2.
+        );
+
+        assert_eq!(
+            a.b(),
+            3.
+        );
+    }
+
+    #[test]
+    fn test_multiply() {
+        assert_eq!(
+            vec3!(3.) * vec3!(3.),
+            vec3!(9.)
+        );
+
+        assert_eq!(
+            vec3!(3.) * 3.,
+            vec3!(9.)
+        );
+
+        assert_eq!(
+            vec3!(3.) * 2.,
+            vec3!(6.)
+        );
+
+        assert_eq!(
+            2. * vec3!(3.),
+            vec3!(6.)
+        );
+    }
+
+    #[test]
+    fn test_negation() {
+        assert_eq!(
+            -vec3!(2.),
+            vec3!(-2.)
+        );
+    }
+
+    #[test]
+    fn test_divide() {
+        assert_eq!(
+            vec3!(3.) / vec3!(3.),
+            vec3!(1.)
+        );
+
+        assert_eq!(
+            vec3!(3.) / 3.,
+            vec3!(1.)
+        );
+
+        assert_eq!(
+            vec3!(6.) / 2.,
+            vec3!(3.)
+        );
+
+        assert_eq!(
+            6. / vec3!(2.),
+            vec3!(3.)
+        );
+    }
+
+    #[test]
+    fn test_subtract() {
+        assert_eq!(
+            vec3!(6.) - vec3!(3.),
+            vec3!(3.)
+        );
+    }
+
+    #[test]
+    fn test_length() {
+        assert_eq!(
+            (vec3!(3., 2., 1.).length() * 1000.).round() / 1000.,
+            3.742
+        )
+    }
+
+    #[test]
     fn test_unit_vector() {
         assert_eq!(
             vec3!(2., 3., 4.)
                 .unit_vector()
                 .map(|x| (x * 10000.).round() / 10000.),
             vec3!(0.3714, 0.5571, 0.7428)
+        );
+    }
+
+    #[test]
+    fn test_operation_assign() {
+        let mut a = vec3!(3.);
+
+        assert_eq!(
+            a,
+            vec3!(3.)
+        );
+
+        a /= 3.;
+
+        assert_eq!(
+            a,
+            vec3!(1.)
+        );
+
+        a *= 3.;
+
+        assert_eq!(
+            a,
+            vec3!(3.)
+        );
+
+        a += vec3!(7.);
+
+        assert_eq!(
+            a,
+            vec3!(10.)
+        );
+
+        a -= vec3!(5.);
+
+        assert_eq!(
+            a,
+            vec3!(5.)
+        );
+    }
+
+    #[test]
+    fn test_map() {
+        let mut a = vec3!(3.);
+        a = a.map(|x| x + 3.);
+
+        assert_eq!(
+            a,
+            vec3!(6.)
         );
     }
 }

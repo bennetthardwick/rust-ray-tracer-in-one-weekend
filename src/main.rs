@@ -45,16 +45,16 @@ fn color(ray: Ray, world: &Box<dyn Hittable>, rng: &mut ThreadRng) -> Vec3 {
 }
 
 fn main() {
-    let width: i16 = 200;
-    let height: i16 = 100;
+    let width: i16 = 1200;
+    let height: i16 = 800;
     let samples: i16 = 10;
 
     let mut rng = ThreadRng::default();
 
-    let look_from = vec3!(3., 3., 2.);
-    let look_at = vec3!(0., 0., -1.);
-    let dist_to_focus = (&look_from - &look_at).length();
-    let aperture = 2.;
+    let look_from = vec3!(13., 2., 3.);
+    let look_at = vec3!(0., 0., 0.);
+    let dist_to_focus = 10.;
+    let aperture = 0.1;
 
     let camera = Camera::new(
         look_from,

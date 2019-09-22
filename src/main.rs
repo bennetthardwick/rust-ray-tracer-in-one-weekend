@@ -10,8 +10,8 @@ use rand::Rng;
 use std::rc::Rc;
 
 use camera::Camera;
-use material::{Metal, Lambertian};
-use objects::{Sphere, Hittable, HittableList};
+use material::{Dielectric, Lambertian, Metal};
+use objects::{Hittable, HittableList, Sphere};
 use ray::Ray;
 use vec3::Vec3;
 
@@ -65,7 +65,7 @@ fn main() {
     world.add(Box::new(Sphere::new(
         vec3!(0., 0., -1.),
         0.5,
-        Rc::new(Lambertian::new(vec3!(0.8, 0.3, 0.3))),
+        Rc::new(Lambertian::new(vec3!(0.1, 0.2, 0.5))),
     )));
     world.add(Box::new(Sphere::new(
         vec3!(0., -100.5, -1.),
@@ -80,7 +80,12 @@ fn main() {
     world.add(Box::new(Sphere::new(
         vec3!(-1., 0., -1.),
         0.5,
-        Rc::new(Metal::new(vec3!(0.8, 0.8, 0.8), 1.)),
+        Rc::new(Dielectric::new(1.5)),
+    )));
+    world.add(Box::new(Sphere::new(
+        vec3!(-1., 0., -1.),
+        -0.45,
+        Rc::new(Dielectric::new(1.5)),
     )));
 
     let world: Box<dyn Hittable> = Box::new(world);

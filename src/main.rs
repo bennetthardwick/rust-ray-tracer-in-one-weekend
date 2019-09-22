@@ -51,12 +51,19 @@ fn main() {
 
     let mut rng = ThreadRng::default();
 
+    let look_from = vec3!(3., 3., 2.);
+    let look_at = vec3!(0., 0., -1.);
+    let dist_to_focus = (&look_from - &look_at).length();
+    let aperture = 2.;
+
     let camera = Camera::new(
-        vec3!(-2., 2., 1.),
-        vec3!(0., 0., -1.),
+        look_from,
+        look_at,
         vec3!(0., 1., 0.),
-        90.,
+        20.,
         f32::from(width) / f32::from(height),
+        aperture,
+        dist_to_focus
     );
 
     print!("P3\n{} {}\n255\n", width, height);
@@ -102,7 +109,7 @@ fn main() {
                 let u = (f32::from(i) + a) / f32::from(width);
                 let v = (f32::from(j) + b) / f32::from(height);
 
-                let ray = camera.get_ray(u, v);
+                let ray = camera.get_ray(u, v, &mut rng);
                 col += color(ray, &world, &mut rng);
             }
 

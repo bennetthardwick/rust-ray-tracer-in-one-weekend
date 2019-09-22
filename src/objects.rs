@@ -1,14 +1,16 @@
+use rand::rngs::ThreadRng;
+use rand::Rng;
 use std::rc::Rc;
 
+use crate::material::{Dielectric, Lambertian, Material, Metal};
 use crate::ray::Ray;
 use crate::vec3::Vec3;
-use crate::material::Material;
 
 pub struct HitRecord {
     pub t: f32,
     pub p: Vec3,
     pub normal: Vec3,
-    pub material: Rc<dyn Material>
+    pub material: Rc<dyn Material>,
 }
 
 pub trait Hittable {
@@ -18,7 +20,7 @@ pub trait Hittable {
 pub struct Sphere {
     center: Vec3,
     radius: f32,
-    material: Rc<dyn Material>
+    material: Rc<dyn Material>,
 }
 
 impl Sphere {
@@ -26,7 +28,7 @@ impl Sphere {
         Sphere {
             center,
             radius,
-            material
+            material,
         }
     }
 }
@@ -55,7 +57,10 @@ impl Hittable for Sphere {
             let normal = (p - &self.center) / self.radius;
 
             return Some(HitRecord {
-                t, p, normal, material: Rc::clone(&self.material)
+                t,
+                p,
+                normal,
+                material: Rc::clone(&self.material),
             });
         }
 
@@ -64,18 +69,96 @@ impl Hittable for Sphere {
 }
 
 pub struct HittableList {
-    list: Vec<Box<dyn Hittable>>
+    list: Vec<Box<dyn Hittable>>,
 }
+
+const CENTER: Vec3 = vec3!(4., 0.2, 0.);
 
 impl HittableList {
     pub fn new() -> HittableList {
-        HittableList {
-            list: vec![]
-        }
+        HittableList { list: vec![] }
     }
 
     pub fn add(&mut self, object: Box<dyn Hittable>) {
         self.list.push(object);
+    }
+
+    pub fn random(rng: &mut ThreadRng) -> HittableList {
+        let mut list = HittableList::new();
+
+        list.add(Box::new(Sphere::new(
+            vec3!(0., -1000., 0.),
+            1000.,
+            Rc::new(Lambertian::new(vec3!(0.5, 0.5, 0.5))),
+        )));
+
+        let end: i16 = 11;
+
+        for a in -end..end {
+            for b in -end..end {
+                let choose_mat: f32 = rng.gen();
+
+                let a_fl = f32::from(a);
+                let b_fl = f32::from(b);
+
+                let center = vec3!(
+                    a_fl + 0.9 * rng.gen::<f32>(),
+                    0.2,
+                    b_fl + 0.9 * rng.gen::<f32>()
+                );
+
+                if (&center - &CENTER).length() > 0.9 {
+                    if choose_mat < 0.8 {
+                        list.add(Box::new(Sphere::new(
+                            center,
+                            0.2,
+                            Rc::new(Lambertian::new(vec3!(
+                                rng.gen::<f32>() * rng.gen::<f32>(),
+                                rng.gen::<f32>() * rng.gen::<f32>(),
+                                rng.gen::<f32>() * rng.gen::<f32>()
+                            ))),
+                        )));
+                    } else if choose_mat < 0.95 {
+                        list.add(Box::new(Sphere::new(
+                            center,
+                            0.2,
+                            Rc::new(Metal::new(
+                                vec3!(
+                                    0.5 * (1. + rng.gen::<f32>()),
+                                    0.5 * (1. + rng.gen::<f32>()),
+                                    0.5 * (1. + rng.gen::<f32>())
+                                ),
+                                0.5 * rng.gen::<f32>(),
+                            )),
+                        )));
+                    } else {
+                        list.add(Box::new(Sphere::new(
+                            center,
+                            0.2,
+                            Rc::new(Dielectric::new(1.5)),
+                        )));
+                    }
+                }
+            }
+        }
+
+        list.add(Box::new(Sphere::new(
+            vec3!(0., 1., 0.),
+            1.,
+            Rc::new(Dielectric::new(1.5)),
+        )));
+        list.add(Box::new(Sphere::new(
+            vec3!(-4., 1., 0.),
+            1.,
+            Rc::new(Lambertian::new(vec3!(0.4, 0.2, 0.1))),
+        )));
+        list.add(Box::new(Sphere::new(
+            vec3!(4., 1., 0.),
+            1.,
+            Rc::new(Metal::new(vec3!(0.7, 0.6, 0.5), 0.)),
+        )));
+
+        list
     }
 }
 

@@ -47,7 +47,7 @@ fn color(ray: Ray, world: &Box<dyn Hittable>, rng: &mut ThreadRng) -> Vec3 {
 fn main() {
     let width: i16 = 200;
     let height: i16 = 100;
-    let samples: i16 = 100;
+    let samples: i16 = 10;
 
     let mut rng = ThreadRng::default();
 
@@ -63,51 +63,20 @@ fn main() {
         20.,
         f32::from(width) / f32::from(height),
         aperture,
-        dist_to_focus
+        dist_to_focus,
     );
 
     print!("P3\n{} {}\n255\n", width, height);
 
-    let mut world = HittableList::new();
-
-    world.add(Box::new(Sphere::new(
-        vec3!(0., 0., -1.),
-        0.5,
-        Rc::new(Lambertian::new(vec3!(0.1, 0.2, 0.5))),
-    )));
-    world.add(Box::new(Sphere::new(
-        vec3!(0., -100.5, -1.),
-        100.,
-        Rc::new(Lambertian::new(vec3!(0.8, 0.8, 0.0))),
-    )));
-    world.add(Box::new(Sphere::new(
-        vec3!(1., 0., -1.),
-        0.5,
-        Rc::new(Metal::new(vec3!(0.8, 0.6, 0.2), 0.3)),
-    )));
-    world.add(Box::new(Sphere::new(
-        vec3!(-1., 0., -1.),
-        0.5,
-        Rc::new(Dielectric::new(1.5)),
-    )));
-    world.add(Box::new(Sphere::new(
-        vec3!(-1., 0., -1.),
-        -0.45,
-        Rc::new(Dielectric::new(1.5)),
-    )));
-
-    let world: Box<dyn Hittable> = Box::new(world);
+    let world: Box<dyn Hittable> = Box::new(HittableList::random(&mut rng));
 
     for j in (0..height).rev() {
         for i in 0..width {
             let mut col = vec3!(0.);
 
             for _ in 0..samples {
-                let a: f32 = rng.gen();
-                let b: f32 = rng.gen();
-
-                let u = (f32::from(i) + a) / f32::from(width);
-                let v = (f32::from(j) + b) / f32::from(height);
+                let u = (f32::from(i) + rng.gen::<f32>()) / f32::from(width);
+                let v = (f32::from(j) + rng.gen::<f32>()) / f32::from(height);
 
                 let ray = camera.get_ray(u, v, &mut rng);
                 col += color(ray, &world, &mut rng);

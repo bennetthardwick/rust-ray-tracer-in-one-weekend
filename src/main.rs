@@ -7,6 +7,7 @@ mod ray;
 
 use rand::rngs::ThreadRng;
 use rand::Rng;
+use std::f32::consts::PI;
 use std::rc::Rc;
 
 use camera::Camera;
@@ -51,43 +52,23 @@ fn main() {
 
     let mut rng = ThreadRng::default();
 
-    let camera = Camera::new(
-        vec3!(-2., -1., -1.),
-        vec3!(4., 0., 0.),
-        vec3!(0., 2., 0.),
-        vec3!(0.),
-    );
+    let camera = Camera::new(90., f32::from(width) / f32::from(height));
 
     print!("P3\n{} {}\n255\n", width, height);
 
     let mut world = HittableList::new();
 
+    let r = (PI / 4.).cos();
     world.add(Box::new(Sphere::new(
-        vec3!(0., 0., -1.),
-        0.5,
-        Rc::new(Lambertian::new(vec3!(0.1, 0.2, 0.5))),
+        vec3!(-r, 0., -1.),
+        r,
+        Rc::new(Lambertian::new(vec3!(0., 0., 1.))),
     )));
     world.add(Box::new(Sphere::new(
-        vec3!(0., -100.5, -1.),
-        100.,
-        Rc::new(Lambertian::new(vec3!(0.8, 0.8, 0.0))),
+        vec3!(r, 0., -1.),
+        r,
+        Rc::new(Lambertian::new(vec3!(1., 0., 0.))),
     )));
-    world.add(Box::new(Sphere::new(
-        vec3!(1., 0., -1.),
-        0.5,
-        Rc::new(Metal::new(vec3!(0.8, 0.6, 0.2), 0.3)),
-    )));
-    world.add(Box::new(Sphere::new(
-        vec3!(-1., 0., -1.),
-        0.5,
-        Rc::new(Dielectric::new(1.5)),
-    )));
-    world.add(Box::new(Sphere::new(
-        vec3!(-1., 0., -1.),
-        -0.45,
-        Rc::new(Dielectric::new(1.5)),
-    )));
-
     let world: Box<dyn Hittable> = Box::new(world);
 
     for j in (0..height).rev() {

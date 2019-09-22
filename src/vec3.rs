@@ -1,7 +1,7 @@
 use std::fmt;
 use std::ops;
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub struct Vec3 {
     pub x: f32,
     pub y: f32,
@@ -13,16 +13,16 @@ macro_rules! vec3 {
         Vec3 {
             x: $v,
             y: $v,
-            z: $v
+            z: $v,
         }
     };
     ($x: expr, $y: expr, $z: expr) => {
         Vec3 {
             x: $x,
             y: $y,
-            z: $z
+            z: $z,
         }
-    }
+    };
 }
 
 impl Vec3 {
@@ -34,11 +34,11 @@ impl Vec3 {
         vec3!(v)
     }
 
-    pub fn map<F>(&mut self, f: F) -> &mut Vec3 where F: Fn(f32) -> f32 {
-        self.x = f(self.x);
-        self.y = f(self.y);
-        self.z = f(self.z);
-        self
+    pub fn map<F>(self, f: F) -> Vec3
+    where
+        F: Fn(f32) -> f32,
+    {
+        vec3!(f(self.x), f(self.y), f(self.z))
     }
 
     pub fn unit_vector(&self) -> Vec3 {
@@ -239,3 +239,31 @@ vec3_impl!(&Vec3);
 vec3_mut_impl!(&Vec3);
 vec3_mut_impl!(Vec3);
 vec3_mut_impl!(f32);
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_cross_product() {
+        assert_eq!(
+            vec3!(2., 3., 4.).cross(&vec3!(5., 6., 7.)),
+            vec3!(-3., 6., -3.)
+        );
+    }
+
+    #[test]
+    fn test_dot_product() {
+        assert_eq!(vec3!(-12., 16., 0.).dot(&vec3!(12., 9., 0.)), 0.);
+    }
+
+    #[test]
+    fn test_unit_vector() {
+        assert_eq!(
+            vec3!(2., 3., 4.)
+                .unit_vector()
+                .map(|x| (x * 10000.).round() / 10000.),
+            vec3!(0.3714, 0.5571, 0.7428)
+        );
+    }
+}
